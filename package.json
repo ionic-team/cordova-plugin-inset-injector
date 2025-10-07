@@ -1,0 +1,32 @@
+{
+  "name": "cordova-plugin-inset-injector",
+  "version": "1.0.0",
+  "main": "www/InsetInjector.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cordova",
+    "Insets",
+    "safe area",
+    "edge-to-edge",
+    "edgetoedge",
+    "ete",
+    "e2e",
+    "system bars"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "cordova": {
+    "id": "cordova-plugin-inset-injector",
+    "platforms": [
+      "android"
+    ]
+  },
+  "engines": {
+    "cordovaDependencies": {
+        "1.0.0": { "cordova-android": ">8.0.0"}
+    }
+}
+}
