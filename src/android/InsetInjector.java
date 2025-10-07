@@ -1,25 +1,16 @@
-package org.apache.cordova.insetInjector;
+package org.apache.cordova.InsetInjector;
 
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Build;
-
 import android.app.Activity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowInsets;
-import android.view.WindowManager;
 
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
-
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
-
-import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -28,55 +19,50 @@ public class InsetInjector extends CordovaPlugin {
 
     @Override
     protected void pluginInitialize() {
-        isEdgeToEdge = preferences.getBoolean("AndroidEdgeToEdge", false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM;
-        View decorView = this.cordova.getActivity().getWindow().getDecorView();
-        ViewCompat.setOnApplyWindowInsetsListener(decorView, (v, insets) -> setupSafeAreaInsets(insets));
+        isEdgeToEdge = preferences.getBoolean("AndroidEdgeToEdge", false) && Build.VERSION.SDK_INT >= 35;
+        View webView = this.webView.getView();
+        ViewCompat.setOnApplyWindowInsetsListener(webView, (v, insets) -> setupSafeAreaInsets(insets));
     }
 
-    private WindowInsetsCompat setupSafeAreaInsets(WindowInsetsCompat insetsCompat) {
-        if (!isEdgeToEdge){
+    private WindowInsetsCompat setupSafeAreaInsets(WindowInsetsCompat windowInsetsCompat) {
+        if (!isEdgeToEdge) {
             injectSafeAreaCSS(0, 0, 0, 0);
-        }else{
-            androidx.core.graphics.Insets insets = insetsCompat.getInsets(WindowInsetsCompat.Type.systemBars());
-            androidx.core.graphics.Insets displayCutout = insetsCompat.getInsets(WindowInsetsCompat.Type.displayCutout());
-    
-            int top = Math.max(insets.top, displayCutout.top);
-            int bottom = Math.max(insets.bottom, displayCutout.bottom);
-            int left = Math.max(insets.left, displayCutout.left);
-            int right = Math.max(insets.right, displayCutout.right);
-    
+        } else {
+            float density = this.cordova.getActivity().getResources().getDisplayMetrics().density;
+
+            Insets insets = windowInsetsCompat
+                    .getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+
+            float top = insets.top / density;
+            float bottom = insets.bottom / density;
+            float left = insets.left / density;
+            float right = insets.right / density;
+
             injectSafeAreaCSS(top, right, bottom, left);
         }
 
-        return WindowInsetsCompat.CONSUMED;
+        return windowInsetsCompat;
     }
 
-    private void injectSafeAreaCSS(int top, int right, int bottom, int left) {
-        Activity activity = this.cordova.getActivity();
-        float density = activity.getResources().getDisplayMetrics().density;
-        int topPx = (int) (top / density);
-        int rightPx = (int) (right / density);
-        int bottomPx = (int) (bottom / density);
-        int leftPx = (int) (left / density);
+    private void injectSafeAreaCSS(float top, float right, float bottom, float left) {
 
-        String js = getCssInsetJsString("TOP", topPx)
-                + getCssInsetJsString("RIGHT", rightPx)
-                + getCssInsetJsString("BOTTOM", bottomPx)
-                + getCssInsetJsString("LEFT", leftPx);
-                
-        activity.runOnUiThread(() -> webView.loadUrl("javascript:" + js));
+        String js = getCssInsetJsString("top", top)
+                + getCssInsetJsString("right", right)
+                + getCssInsetJsString("bottom", bottom)
+                + getCssInsetJsString("left", left);
+
+        this.cordova.getActivity().runOnUiThread(() -> webView.loadUrl("javascript:" + js));
     }
 
-    private String getCssInsetJsString(String inset, int size) {
-        return "document.documentElement.style.setProperty('--safe-area-inset-" + inset.toLowerCase() + "', '" + size
-                + "px');";
+    private String getCssInsetJsString(String inset, float pixels) {
+        return String.format("document.documentElement.style.setProperty('--safe-area-inset-%s', '%spx');",
+                inset,
+                pixels);
     }
 
     private void initialSetup() {
         View decorView = this.cordova.getActivity().getWindow().getDecorView();
         WindowInsets currentInsets = decorView.getRootWindowInsets();
-
-        Log.d("InsetInjector", "InsetInjector ready");
 
         if (currentInsets != null) {
             Log.d("InsetInjector", "Insets have been injected");
