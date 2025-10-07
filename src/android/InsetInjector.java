@@ -23,8 +23,6 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-//TODOASDF Remove the edge-to-edge git repo, and instead make it cordova-plugin-inset-injector
-
 public class InsetInjector extends CordovaPlugin {
     private boolean isEdgeToEdge = false;
 
