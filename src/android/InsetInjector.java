@@ -45,7 +45,6 @@ public class InsetInjector extends CordovaPlugin {
     }
 
     private void injectSafeAreaCSS(float top, float right, float bottom, float left) {
-
         String js = getCssInsetJsString("top", top)
                 + getCssInsetJsString("right", right)
                 + getCssInsetJsString("bottom", bottom)

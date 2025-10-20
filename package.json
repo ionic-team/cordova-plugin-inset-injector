@@ -1,11 +1,14 @@
 {
   "name": "cordova-plugin-inset-injector",
   "version": "1.0.0",
+  "description": "A Cordova plugin that will inject css variables that correspond with the hardware level insets. This is to get around the limitations of lower versions of the android webview that do not correctly inject the safe-area-inset values",
   "main": "www/InsetInjector.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
     "cordova",
     "Insets",
     "safe area",
@@ -13,11 +16,11 @@
     "edgetoedge",
     "ete",
     "e2e",
-    "system bars"
+    "system bars",
+    "android-only"
   ],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Ionic Team",
+  "license": "Apache-2.0",
   "cordova": {
     "id": "cordova-plugin-inset-injector",
     "platforms": [
@@ -26,7 +29,9 @@
   },
   "engines": {
     "cordovaDependencies": {
-        "1.0.0": { "cordova-android": ">8.0.0"}
+      "1.0.0": { 
+        "cordova-android": ">=8.0.0"
+      }
     }
-}
+  }
 }

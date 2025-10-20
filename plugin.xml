@@ -4,11 +4,18 @@
     version="1.0.0">
     <name>System-Bars</name>
     <description>A Cordova plugin that is aimed to replace the existing status bar plugin and
-        support a more modern approach to handling of system bars.</description>
+        support a more modern approach to handling of system bars. This plugin only supports Android.</description>
     <license>Apache 2.0</license>
+    
+    <!-- Add engines to specify platform requirements -->
+    <engines>
+        <engine name="cordova-android" version=">=8.0.0" />
+    </engines>
+    
     <js-module src="www/InsetInjector.js" name="InsetInjector">
         <clobbers target="InsetInjector" />
     </js-module>
+    
     <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="InsetInjector">
@@ -17,6 +24,5 @@
         </config-file>
         <source-file src="src/android/InsetInjector.java"
             target-dir="src/org/apache/cordova/InsetInjector" />
-
     </platform>
 </plugin>
