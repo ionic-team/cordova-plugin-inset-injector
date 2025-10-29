@@ -4,12 +4,15 @@ import android.os.Build;
 import android.app.Activity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.WindowInsets;
+import android.widget.FrameLayout;
 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,19 +28,23 @@ public class InsetInjector extends CordovaPlugin {
     }
 
     private WindowInsetsCompat setupSafeAreaInsets(WindowInsetsCompat windowInsetsCompat) {
+        Insets insets = windowInsetsCompat
+                .getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+
+        float density = this.cordova.getActivity().getResources().getDisplayMetrics().density;
+        float top = insets.top / density;
+        float bottom = insets.bottom / density;
+        float left = insets.left / density;
+        float right = insets.right / density;
+
         if (!isEdgeToEdge) {
-            injectSafeAreaCSS(0, 0, 0, 0);
+            boolean isStatusBarVisible = isStatusBarVisible(this.webView);
+            if (!isStatusBarVisible) {
+                injectSafeAreaCSS(top, 0, 0, 0);
+            } else {
+                injectSafeAreaCSS(0, 0, 0, 0);
+            }
         } else {
-            float density = this.cordova.getActivity().getResources().getDisplayMetrics().density;
-
-            Insets insets = windowInsetsCompat
-                    .getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
-
-            float top = insets.top / density;
-            float bottom = insets.bottom / density;
-            float left = insets.left / density;
-            float right = insets.right / density;
-
             injectSafeAreaCSS(top, right, bottom, left);
         }
 
@@ -68,6 +75,23 @@ public class InsetInjector extends CordovaPlugin {
             WindowInsetsCompat insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(currentInsets, decorView);
             setupSafeAreaInsets(insetsCompat);
         }
+    }
+
+    private boolean isStatusBarVisible(CordovaWebView webView) {
+        ViewParent parent = webView.getView().getParent();
+        if (!(parent instanceof FrameLayout)) {
+            return false;
+        }
+
+        FrameLayout rootView = (FrameLayout) parent;
+        for (int i = 0; i < rootView.getChildCount(); i++) {
+            View child = rootView.getChildAt(i);
+            Object tag = child.getTag();
+            if ("statusBarView".equals(tag)) {
+                return child.getVisibility() == View.VISIBLE;
+            }
+        }
+        return false;
     }
 
     @Override
