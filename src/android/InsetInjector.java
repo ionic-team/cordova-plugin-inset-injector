@@ -1,4 +1,4 @@
-package org.apache.cordova.InsetInjector;
+package com.ionic.cordova.insetinjector;
 
 import android.os.Build;
 import android.app.Activity;

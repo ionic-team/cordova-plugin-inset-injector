@@ -19,7 +19,7 @@
     <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="InsetInjector">
-                <param name="android-package" value="org.apache.cordova.InsetInjector.InsetInjector" />
+                <param name="android-package" value="com.ionic.cordova.insetinjector.InsetInjector" />
             </feature>
         </config-file>
         <source-file src="src/android/InsetInjector.java"
