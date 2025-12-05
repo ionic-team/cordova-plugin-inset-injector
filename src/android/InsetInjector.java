@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.WindowInsets;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import androidx.core.graphics.Insets;
@@ -57,7 +58,9 @@ public class InsetInjector extends CordovaPlugin {
                 + getCssInsetJsString("bottom", bottom)
                 + getCssInsetJsString("left", left);
 
-        this.cordova.getActivity().runOnUiThread(() -> webView.loadUrl("javascript:" + js));
+        this.webView.getView().post(() -> {
+            ((WebView) webView.getEngine().getView()).evaluateJavascript(js, null);
+        });
     }
 
     private String getCssInsetJsString(String inset, float pixels) {
