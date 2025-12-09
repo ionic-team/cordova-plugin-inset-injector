@@ -25,7 +25,13 @@ public class InsetInjector extends CordovaPlugin {
     protected void pluginInitialize() {
         isEdgeToEdge = preferences.getBoolean("AndroidEdgeToEdge", false) && Build.VERSION.SDK_INT >= 35;
         View webView = this.webView.getView();
-        ViewCompat.setOnApplyWindowInsetsListener((View) webView.getParent() , (v, insets) -> setupSafeAreaInsets(insets));
+
+        ViewCompat.setOnApplyWindowInsetsListener(
+                webView,
+                (v, insets) -> {
+                    v.onApplyWindowInsets(insets.toWindowInsets());
+                    return setupSafeAreaInsets(insets);
+                });
     }
 
     private WindowInsetsCompat setupSafeAreaInsets(WindowInsetsCompat windowInsetsCompat) {
