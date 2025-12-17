@@ -19,10 +19,10 @@
     <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="InsetInjector">
-                <param name="android-package" value="com.ionic.cordova.insetinjector.InsetInjector" />
+                <param name="android-package" value="com.capacitorjs.cordova.insetinjector.InsetInjector" />
             </feature>
         </config-file>
         <source-file src="src/android/InsetInjector.java"
-            target-dir="src/org/apache/cordova/InsetInjector" />
+            target-dir="src/com/capacitorjs/cordova/insetinjector" />
     </platform>
 </plugin>

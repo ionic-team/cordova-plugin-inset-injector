@@ -1,4 +1,4 @@
-package com.ionic.cordova.insetinjector;
+package com.capacitorjs.cordova.insetinjector;
 
 import android.os.Build;
 import android.util.Log;
