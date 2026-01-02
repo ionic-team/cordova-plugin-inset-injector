@@ -1,5 +1,8 @@
 package com.capacitorjs.cordova.insetinjector;
 
+import android.annotation.SuppressLint;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +12,7 @@ import android.view.WindowInsets;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -28,6 +32,27 @@ public class InsetInjector extends CordovaPlugin {
         isEdgeToEdge = preferences.getBoolean("AndroidEdgeToEdge", false) && Build.VERSION.SDK_INT >= 35;
         isFullScreen = preferences.getBoolean("Fullscreen", false);
         setupInsetsListener(this.webView.getView());
+        setNavigationBarBackgroundColor();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setNavigationBarBackgroundColor();
+    }
+
+    @Override
+    public void onResume(boolean multitasking) {
+        super.onResume(multitasking);
+        setNavigationBarBackgroundColor();
+    }
+
+    @Override
+    public Object onMessage(String id, Object data) {
+        if (id.equals("updateSystemBars")) {
+            setNavigationBarBackgroundColor();
+        }
+        return null;
     }
 
     private void setupInsetsListener(View v) {
@@ -123,6 +148,48 @@ public class InsetInjector extends CordovaPlugin {
             }
         }
         return false;
+    }
+
+
+
+    @SuppressLint("DiscouragedApi")
+    private int getUiModeColor() {
+        var context = cordova.getContext();
+        var resources = context.getResources();
+        boolean isNightMode = (resources.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        String fallbackColor = isNightMode ? "#121318" : "#FAF8FF";
+        int colorResId = resources.getIdentifier("cdv_background_color", "color", context.getPackageName());
+        return colorResId != 0
+                ? ContextCompat.getColor(context, colorResId)
+                : Color.parseColor(fallbackColor);
+    }
+
+    private void setNavigationBarBackgroundColor() {
+        String colorString = preferences.getString("NavigationBarBackgroundColor", null);
+        int color = 0;
+        if(isEdgeToEdge){
+            // If we are in edge to edge, we have to set the color to transparent
+            color = Color.parseColor("#00000000");
+        } else if (colorString.equalsIgnoreCase("#FF000000") || colorString.equals("#0")) {
+            // Match what SystemBarPlugin.java if transparent is explicitly passed in.
+            // This means we match the UI mode, not actual transparency. If we use transparent,
+            // then the root view color seeps in, which makes the nav bar color the same as the
+            // background color from the config.xml
+            color = getUiModeColor();
+        } else {
+            // If a value is provided override the default background color, unless we are in edge
+            // to edge mode
+           color = Color.parseColor(colorString);
+        }
+
+        try {
+            int finalColor = color;
+            this.cordova.getActivity().runOnUiThread(() -> {
+                this.cordova.getActivity().getWindow().setNavigationBarColor(finalColor);
+            });
+        } catch (IllegalArgumentException e) {
+            Log.e("InsetInjector", "Invalid color format for NavigationBarBackgroundColor: " + color, e);
+        }
     }
 
     @Override
