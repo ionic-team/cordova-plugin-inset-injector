@@ -25,7 +25,7 @@ public class InsetInjector extends CordovaPlugin {
 
     @Override
     protected void pluginInitialize() {
-        isEdgeToEdge = preferences.getBoolean("AndroidEdgeToEdge", false) && Build.VERSION.SDK_INT >= 35;
+        isEdgeToEdge = preferences.getBoolean("AndroidEdgeToEdge", false);
         isFullScreen = preferences.getBoolean("Fullscreen", false);
         setupInsetsListener(this.webView.getView());
     }
