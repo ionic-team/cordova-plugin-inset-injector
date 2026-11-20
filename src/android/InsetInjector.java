@@ -61,6 +61,13 @@ public class InsetInjector extends CordovaPlugin {
                 injectSafeAreaCSS(safeAreaInsets);
             }
 
+            // The WebView may have applied an IME inset before this listener replaced its own handling,
+            // and only learns that the IME is gone from the insets passed to it here.
+            WindowInsetsCompat webViewInsets = new WindowInsetsCompat.Builder(windowInsetsCompat)
+                    .setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE)
+                    .build();
+            ViewCompat.onApplyWindowInsets(view, webViewInsets);
+
             return WindowInsetsCompat.CONSUMED;
         });
 
